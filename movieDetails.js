@@ -1,239 +1,198 @@
 import { moviesDatabase } from "./movieStorage.js";
 
-// Create movie cards
-function createMovieCard(movie) {
-  const movieCard = document.createElement("div");
-  movieCard.classList.add("movie-card");
+// Helper function to reduce duplicate code
+function createElement(tag, classes = [], content = '') {
+  const element = document.createElement(tag);
+  element.classList.add(...classes);
+  if (content) element.innerHTML = content;
+  return element;
+}
 
-  const movieTitle = document.createElement("h2");
-  movieTitle.classList.add("movie-title");
-  movieTitle.textContent = movie.title;
-
-  const movieCardLayout = document.createElement("div");
-  movieCardLayout.classList.add("movie-card-layout");
-
-  const moviePoster = document.createElement("img");
+// Create movie info
+function createMovieInfo(movie) {
+  const movieTitle = createElement('h2', ['movie-title'], movie.title);
+  const moviePoster = createElement('img', ['movie-poster']);
   moviePoster.src = movie.poster_url;
   moviePoster.alt = `Poster for ${movie.title}`;
-  moviePoster.classList.add("movie-poster");
 
-  const movieDetailsSide = document.createElement("div");
-  movieDetailsSide.classList.add("movie-details-side");
+  const movieYear = createElement('p', ['movie-details'], `<strong>Year:</strong> ${movie.movie_year}`);
+  const movieDescription = createElement('p', ['movie-description'], movie.description);
 
-  const movieYear = document.createElement("p");
-  movieYear.classList.add("movie-details");
-  movieYear.innerHTML = `<strong>Year:</strong> ${movie.movie_year}`;
-
-  const movieDescription = document.createElement("p");
-  movieDescription.classList.add("movie-description");
-  movieDescription.textContent = movie.description;
-
+  const movieDetailsSide = createElement('div', ['movie-details-side']);
   movieDetailsSide.append(movieYear, movieDescription);
+
+  const movieCardLayout = createElement('div', ['movie-card-layout']);
   movieCardLayout.append(moviePoster, movieDetailsSide);
 
-  const movieDirector = document.createElement("p");
-  movieDirector.classList.add("movie-director");
-  movieDirector.textContent = `Director: ${movie.director}`;
+  const movieDirector = createElement('p', ['movie-director'], `Director: ${movie.director}`);
 
-  const movieExtraInfo = document.createElement("div");
-  movieExtraInfo.classList.add("movie-extra-info");
-  movieExtraInfo.dataset.movieId = movie.id;
+  const movieInfo = createElement('div', ['movie-info']);
+  movieInfo.append(movieTitle, movieCardLayout, movieDirector);
 
-  const moviePrice = document.createElement("p");
-  moviePrice.classList.add("movie-price");
-  moviePrice.textContent = `DKK${movie.price}`;
+  return movieInfo;
+}
 
-  const sendMessage = document.createElement("div");
-  sendMessage.classList.add("movie-info-icon");
-
-  const movieRatings = document.createElement("div");
-  movieRatings.classList.add("movie-ratings");
-
-  const messageIcon = document.createElement("i");
-  messageIcon.classList.add("fa-regular", "fa-message");
-  sendMessage.appendChild(messageIcon);
+// Create rating function
+function createStarRating(movie) {
+  const movieRatings = createElement('div', ['movie-ratings']);
 
   for (let i = 0; i < 5; i++) {
-    const ratingButton = document.createElement("button");
-    ratingButton.classList.add("rating");
-
-    const starIcon = document.createElement("i");
-    starIcon.classList.add("fa-regular", "fa-star");
-
+    const ratingButton = createElement('button', ['rating']);
+    const starIcon = createElement('i', ['fa-regular', 'fa-star']);
     ratingButton.appendChild(starIcon);
-    movieRatings.appendChild(ratingButton);
 
-    ratingButton.addEventListener("click", () => {
+    ratingButton.addEventListener('click', () => {
       movie.rating = i + 1;
       updateStars(movieRatings, movie.rating);
     });
+
+    movieRatings.appendChild(ratingButton);
   }
-
-  movieExtraInfo.append(moviePrice, movieRatings, sendMessage);
-  movieCard.append(movieTitle, movieCardLayout, movieDirector, movieExtraInfo);
-
-  sendMessage.addEventListener("click", function (e) {
-    e.stopPropagation();
-    openCommentsPopup(movie);
-  });
-
-  movieCardLayout.addEventListener("click", function () {
-    openMovieDetailsPopup(movie);
-  });
 
   updateStars(movieRatings, movie.rating || 0);
 
-  return movieCard;
+  return movieRatings;
 }
 
 // Update star rating
 function updateStars(ratingContainer, rating) {
-  const stars = ratingContainer.querySelectorAll(".rating i");
+  const stars = ratingContainer.querySelectorAll('.rating i');
   stars.forEach((star, index) => {
-    if (index < rating) {
-      star.classList.add("fa-solid");
-      star.classList.remove("fa-regular");
-    } else {
-      star.classList.add("fa-regular");
-      star.classList.remove("fa-solid");
-    }
+    star.classList.toggle('fa-solid', index < rating);
+    star.classList.toggle('fa-regular', index >= rating);
   });
 }
 
-// Popup and comment functionality 
+// Create comment component
+function createCommentComponent(movie) {
+  const sendMessage = createElement('div', ['movie-info-icon']);
+  const messageIcon = createElement('i', ['fa-regular', 'fa-message']);
+  sendMessage.appendChild(messageIcon);
+
+  const movieExtraInfo = createElement('div', ['movie-extra-info']);
+  movieExtraInfo.dataset.movieId = movie.id;
+
+  const moviePrice = createElement('p', ['movie-price'], `DKK${movie.price}`);
+  const commentsButton = createElement('button', ['comments-button']);
+  sendMessage.appendChild(commentsButton);
+
+  movieExtraInfo.append(moviePrice, createStarRating(movie), sendMessage);
+
+  sendMessage.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openCommentsPopup(movie);
+  });
+
+  return movieExtraInfo;
+}
+
+// Create comment element
+function createCommentElement(comment) {
+  return createElement('p', ['comment'], comment);
+}
+
+// Create submit button
+function createSubmitButton(movie, commentInput, commentsSection) {
+  const submitButton = createElement('button', ['submit-button'], 'Submit');
+
+  submitButton.addEventListener('click', () => {
+    const newComment = commentInput.value.trim();
+    if (newComment) {
+      movie.comments = movie.comments || [];
+      movie.comments.push(newComment);
+
+      const newCommentElement = createCommentElement(newComment);
+      commentsSection.appendChild(newCommentElement);
+      commentInput.value = '';
+    }
+  });
+
+  return submitButton;
+}
+
+// Open comments popup
 function openCommentsPopup(movie) {
-  const popupBackground = document.createElement("div");
-  popupBackground.classList.add("popup-background");
-
-  const popupContainer = document.createElement("div");
-  popupContainer.classList.add("popup-container");
-
-  const popupHeader = document.createElement("h2");
-  popupHeader.textContent = `Comments for ${movie.title}`;
-  popupHeader.classList.add("popup-header");
-
-  const closeIcon = document.createElement("i");
-  closeIcon.classList.add("fas", "fa-times", "close-icon");
-
-  const miniPoster = document.createElement("img");
+  const popupBackground = createElement('div', ['popup-background']);
+  const popupContainer = createElement('div', ['popup-container']);
+  const popupHeader = createElement('h2', ['popup-header'], `Comments for ${movie.title}`);
+  const closeIcon = createElement('i', ['fas', 'fa-times', 'close-icon']);
+  const miniPoster = createElement('img', ['mini-poster']);
   miniPoster.src = movie.poster_url;
   miniPoster.alt = `Poster for ${movie.title}`;
-  miniPoster.classList.add("mini-poster");
 
-  const commentsSection = document.createElement("div");
-  commentsSection.classList.add("comments-section");
+  const commentsSection = createElement('div', ['comments-section']);
+  (movie.comments || []).forEach(comment => {
+    commentsSection.appendChild(createCommentElement(comment));
+  });
 
-  if (movie.comments && movie.comments.length > 0) {
-    movie.comments.forEach(comment => {
-      const commentElement = document.createElement("p");
-      commentElement.textContent = comment;
-      commentsSection.appendChild(commentElement);
-    });
-  }
-
-  const commentInput = document.createElement("textarea");
-  commentInput.classList.add("comment-input");
+  const commentInput = createElement('textarea', ['comment-input']);
   commentInput.placeholder = "Write your comment here...";
+  const submitButton = createSubmitButton(movie, commentInput, commentsSection);
 
-  const submitButton = document.createElement("button");
-  submitButton.textContent = "Submit";
-  submitButton.classList.add("submit-button");
-
-  const headerContainer = document.createElement("div");
-  headerContainer.classList.add("header-container");
+  const headerContainer = createElement('div', ['header-container']);
   headerContainer.append(miniPoster, popupHeader, closeIcon);
 
   popupContainer.append(headerContainer, commentsSection, commentInput, submitButton);
   popupBackground.appendChild(popupContainer);
   document.body.appendChild(popupBackground);
 
-  closeIcon.addEventListener("click", function () {
+  closeIcon.addEventListener('click', () => {
     document.body.removeChild(popupBackground);
-  });
-
-  submitButton.addEventListener("click", function () {
-    const newComment = commentInput.value.trim();
-    if (newComment) {
-      if (!movie.comments) {
-        movie.comments = [];
-      }
-      movie.comments.push(newComment);
-
-      const newCommentElement = document.createElement("p");
-      newCommentElement.textContent = newComment;
-      commentsSection.appendChild(newCommentElement);
-
-      newCommentElement.style.border = "1px solid #5c5b5b";
-      newCommentElement.style.padding = "5px";
-      newCommentElement.style.margin = "5px";
-      newCommentElement.style.borderRadius = "5px";
-
-      commentInput.value = "";
-    }
   });
 }
 
-// Movie details popup
+// Open movie details popup
 function openMovieDetailsPopup(movie) {
-  const popupBackground = document.createElement("div");
-  popupBackground.classList.add("popup-background");
+  const popupBackground = createElement('div', ['popup-background']);
+  const popupContainer = createElement('div', ['popup-container']);
+  const popupHeader = createElement('h2', ['popup-header'], movie.title);
+  const closeIcon = createElement('i', ['fas', 'fa-times', 'close-icon']);
 
-  const popupContainer = document.createElement("div");
-  popupContainer.classList.add("popup-container");
-
-  const popupHeader = document.createElement("h2");
-  popupHeader.textContent = movie.title;
-  popupHeader.classList.add("popup-header");
-
-  const closeIcon = document.createElement("i");
-  closeIcon.classList.add("fas", "fa-times", "close-icon");
-
-  const popupContent = document.createElement("div");
-  popupContent.classList.add("popup-content");
-
-  const moviePoster = document.createElement("img");
+  const moviePoster = createElement('img', ['popup-movie-poster']);
   moviePoster.src = movie.poster_url;
   moviePoster.alt = `Poster for ${movie.title}`;
-  moviePoster.classList.add("popup-movie-poster");
 
-  const movieDetails = document.createElement("div");
-  movieDetails.classList.add("popup-movie-details");
+  const movieYear = createElement('p', [], `<strong>Year:</strong> ${movie.movie_year}`);
+  const movieDirector = createElement('p', [], `<strong>Director:</strong> ${movie.director}`);
+  const movieDescription = createElement('p', [], `<strong>Description:</strong> ${movie.description}`);
+  const movieActors = createElement('p', [], `<strong>Main actors:</strong> ${movie.actors}`);
+  const moviePrice = createElement('p', [], `<strong>Price:</strong> DKK${movie.price}`);
 
-  const movieYear = document.createElement("p");
-  movieYear.innerHTML = `<strong>Year:</strong> ${movie.movie_year}`;
-
-  const movieDirector = document.createElement("p");
-  movieDirector.innerHTML = `<strong>Director:</strong> ${movie.director}`;
-
-  const movieDescription = document.createElement("p");
-  movieDescription.innerHTML = `<strong>Description:</strong> ${movie.description}`;
-
-  const movieActors = document.createElement("p");
-  movieActors.innerHTML = `<strong>Main actors:</strong> ${movie.actors}`;
-
-  const moviePrice = document.createElement("p");
-  moviePrice.innerHTML = `<strong>Price:</strong> DKK${movie.price}`;
-
+  const movieDetails = createElement('div', ['popup-movie-details']);
   movieDetails.append(movieYear, movieDirector, movieDescription, movieActors, moviePrice);
 
-  const headerContainer = document.createElement("div");
-  headerContainer.classList.add("header-container");
+  const headerContainer = createElement('div', ['header-container']);
   headerContainer.append(popupHeader, closeIcon);
 
+  const popupContent = createElement('div', ['popup-content']);
   popupContent.append(moviePoster, movieDetails);
   popupContainer.append(headerContainer, popupContent);
   popupBackground.appendChild(popupContainer);
   document.body.appendChild(popupBackground);
 
-  closeIcon.addEventListener("click", function () {
+  closeIcon.addEventListener('click', () => {
     document.body.removeChild(popupBackground);
   });
 }
 
-//  Populate movie cards
+// Create movie card
+function createMovieCard(movie) {
+  const movieCard = createElement('div', ['movie-card']);
+  const movieInfo = createMovieInfo(movie);
+  const commentComponent = createCommentComponent(movie);
+
+  movieCard.append(movieInfo, commentComponent);
+
+  const movieCardLayout = movieInfo.querySelector('.movie-card-layout');
+  movieCardLayout.addEventListener('click', () => openMovieDetailsPopup(movie));
+
+  return movieCard;
+}
+
+// Populate movie cards
 function showMovies(movieList) {
-  const movieGrid = document.getElementById("movie-layout");
-  movieList.forEach((movie) => {
+  const movieGrid = document.getElementById('movie-layout');
+  movieList.forEach(movie => {
     const movieCard = createMovieCard(movie);
     movieGrid.appendChild(movieCard);
   });
