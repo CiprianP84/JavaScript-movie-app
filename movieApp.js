@@ -1,5 +1,14 @@
 import { moviesDatabase } from "./movieStorage.js";
 
+document.addEventListener('DOMContentLoaded', () => {
+  const mobileToggle = document.querySelector('.mobile-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  mobileToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('active');
+  });
+});
+
 // Helper function to reduce duplicate code
 function createElement(tag, classes = [], content = '') {
   const element = document.createElement(tag);
@@ -151,21 +160,26 @@ function openMovieDetailsPopup(movie) {
   const moviePoster = createElement('img', ['popup-movie-poster']);
   moviePoster.src = movie.poster_url;
   moviePoster.alt = `Poster for ${movie.title}`;
+  const movieLength = createElement('p', [], `<strong>Duration:</strong> ${movie.movie_duration} minutes`);
 
   const movieYear = createElement('p', [], `<strong>Year:</strong> ${movie.movie_year}`);
   const movieDirector = createElement('p', [], `<strong>Director:</strong> ${movie.director}`);
   const movieDescription = createElement('p', [], `<strong>Description:</strong> ${movie.description}`);
   const movieActors = createElement('p', [], `<strong>Main actors:</strong> ${movie.actors}`);
+  const movieRating = createElement('p', [], `<strong>Age rating:</strong> ${movie.age_rating}`);
+  const movieScore = createElement('p', [], `<strong>Rotten Tomatoes Score:</strong> ${movie.rotten_tomatoes_score}`);
   const moviePrice = createElement('p', [], `<strong>Price:</strong> DKK${movie.price}`);
 
+  const movieLeft = createElement('div', ['popup-left']);
+  movieLeft.append(moviePoster, movieLength)
   const movieDetails = createElement('div', ['popup-movie-details']);
-  movieDetails.append(movieYear, movieDirector, movieDescription, movieActors, moviePrice);
+  movieDetails.append(movieYear, movieDirector, movieDescription, movieActors, movieRating, movieScore, moviePrice);
 
   const headerContainer = createElement('div', ['header-container']);
   headerContainer.append(popupHeader, closeIcon);
 
   const popupContent = createElement('div', ['popup-content']);
-  popupContent.append(moviePoster, movieDetails);
+  popupContent.append(movieLeft, movieDetails);
   popupContainer.append(headerContainer, popupContent);
   popupBackground.appendChild(popupContainer);
   document.body.appendChild(popupBackground);
