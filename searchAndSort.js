@@ -1,11 +1,13 @@
 import { moviesDatabase } from "./movieStorage.js";
 
 // Function to search for a keyword
-function searchMoviesByKeyword(keyword) {
-  const lowerCaseKeyword = keyword.toLowerCase();
-  return moviesDatabase.filter(movie => 
-    movie.title.toLowerCase().includes(lowerCaseKeyword)
-  );
+function searchMovies(keyword) {
+  return moviesDatabase.filter(movie =>
+    movie.title.toLowerCase().includes(keyword.toLowerCase()) ||
+    movie.description.toLowerCase().includes(keyword.toLowerCase()) ||
+    movie.director.toLowerCase().includes(keyword.toLowerCase()) ||
+    movie.actors.some(actor => actor.toLowerCase().includes(keyword.toLowerCase()))
+  ); 
 }
 
 // Function to sort the movie array by one or a few selected properties
@@ -21,24 +23,31 @@ function sortMovies(properties) {
 
 // Function to filter by age rating
 function filterMoviesByAgeRating(ageRating) {
-  if (ageRating === '') return moviesDatabase;
   return moviesDatabase.filter(movie => 
     movie.age_rating === ageRating
   );
 }
 
-// Function to filter movies by minimum duration
-function filterMoviesByDuration(minDuration) {
-  return moviesDatabase.filter(movie => movie.movie_duration >= minDuration);
-}
+// Function to show movies over 120min
+const moviesOver2Hours = moviesDatabase
+.filter(movie => movie.movie_duration > 120)
+.map(movie => movie.title);
 
-// Function to sort movies by Rotten Tomatoes score
-function sortMoviesByTomatoesRating() {
-  return [...moviesDatabase].sort((a, b) => b.rotten_tomatoes_score - a.rotten_tomatoes_score);
-}
+// Function to sort by the highest Rotten Tomatoes Score
+const sortedByScore = [...moviesDatabase]
+.sort((a, b) => {
+  const scoreA = parseFloat(a.rotten_tomatoes_score);
+  const scoreB = parseFloat(b.rotten_tomatoes_score);
+  return scoreB - scoreA;
+})
+.map(movie => ({
+  score: movie.rotten_tomatoes_score,
+  title: movie.title
+}));
+
 
 // Testing the searching and sorting function:
-const searchResults = searchMoviesByKeyword('dark');
+const searchResults = searchMovies('dark');
 console.log('Search Results:', searchResults);
 
 const sortedMovies = sortMovies(['movie_year', 'title']);
@@ -47,8 +56,7 @@ console.log('Sorted Movies:', sortedMovies);
 const ageRatedMovie = filterMoviesByAgeRating('G');
 console.log('Age Rated Movie:', ageRatedMovie);
 
-const longestMovie = filterMoviesByDuration(160);
-console.log('Longest Movie:', longestMovie);
+console.log("Here are movies longer than 2 hours: ",moviesOver2Hours);
 
-const sortedByTomatoes = sortMoviesByTomatoesRating();
-console.log('Movies sorted by Rotten Tomatoes Rating:', sortedByTomatoes);
+console.log("Here are the movies sorted by the Rotten Tomatoes Score: ",sortedByScore);
+
