@@ -1,68 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Tazflix - your best movie app</title>
-      <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tazflix - Your Best Movie App</title>
+    <link rel="stylesheet" href="style.css">
+    <script async src="https://kit.fontawesome.com/ed09df50d0.js" crossorigin="anonymous"></script>
   </head>
   <body>
     <header>
-        <nav class="navbar">
-          <div class="app-name">
-            <div class="mobile-toggle">
-              <i class="fa-solid fa-bars"></i>
-            </div>
-            <div class="app-logo">
-              <img src="tazflix-logo.webp" alt="Logo for Tazflix movie app">
-            </div>
-            <h1>Tazflix</h1>
+      <nav class="navbar">
+        <div class="app-name">
+          <button class="mobile-toggle" aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="app-logo">
+            <img src="tazflix-logo.webp" alt="Tazflix movie app logo">
           </div>
-          <div class="nav-links">
-            <div class="search-bar" id="search-bar">
-              <input type="text" id="search-input" placeholder="Search for movies...">
-              <i class="fas fa-search"></i>
-            </div>
-            <div class="navbar-icon">
-              <p>Sort</p>
-              <i class="fa-solid fa-arrow-up-wide-short"></i>
-            </div>
-            <div class="navbar-icon">
-              <p>My list</p>
-              <i class="fa-regular fa-square-check"></i>
-            </div>
-            <div class="navbar-icon">
-              <p>Log in</p>
-              <i class="fas fa-user"></i>
-            </div>
+          <h1>Tazflix</h1>
+        </div>
+        <div class="timer-navbar-mobile toggle-timer-block">
+          <p>Timer</p>
+          <i class="fa-solid fa-stopwatch-20"></i>
+        </div>
+        <div class="nav-links">
+          <div class="navbar-icon timer-navbar toggle-timer-block">
+            <p>Timer</p>
+            <i class="fa-solid fa-stopwatch-20" aria-label="Timer"></i>
           </div>
-        </nav>
-        <div class="mobile-menu" id="mobile-menu">
-          <img src="tazflix-logo.webp" alt="Logo for Tazflix movie app">
-          <div class="search-bar-mobile" id="search-bar-mobile">
-            <input type="text" id="search-input-mobile" placeholder="Search for movies...">
-            <i class="fas fa-search"></i>
+          <div class="search-bar" id="search-bar">
+            <input type="text" id="search-input" placeholder="Search for movies..." aria-label="Search for movies">
+            <button aria-label="Search"><i class="fas fa-search"></i></button>
           </div>
-          <div class="mobile-view">
-            <i class="fa-solid fa-arrow-up-wide-short"></i><a href='#'>Select a category</a>
+          <div class="navbar-icon">
+            <p>Sort</p>
+            <i class="fa-solid fa-arrow-up-wide-short" aria-label="Sort"></i>
           </div>
-          <div class="mobile-view">
-            <i class="fa-regular fa-user"></i><a href="#">My profile</a>
+          <div class="navbar-icon">
+            <p>My list</p>
+            <i class="fa-regular fa-square-check" aria-label="My list"></i>
           </div>
-          <div class="mobile-view">
-            <i class="fa-solid fa-film"></i><a href="#">My List</a>
+          <div class="navbar-icon">
+            <p>Log in</p>
+            <i class="fas fa-user" aria-label="Log in"></i>
           </div>
+        </div>
+      </nav>
+      <div class="mobile-menu" id="mobile-menu">
+        <img src="tazflix-logo.webp" alt="Tazflix movie app logo">
+        <div class="search-bar-mobile" id="search-bar-mobile">
+          <input type="text" id="search-input-mobile" placeholder="Search for movies..." aria-label="Search for movies">
+          <button aria-label="Search"><i class="fas fa-search"></i></button>
+        </div>
+        <div class="mobile-view">
+          <i class="fa-solid fa-arrow-up-wide-short" aria-label="Select a category"></i><a href="#">Select a category</a>
+        </div>
+        <div class="mobile-view">
+          <i class="fa-regular fa-user" aria-label="My profile"></i><a href="#">My profile</a>
+        </div>
+        <div class="mobile-view">
+          <i class="fa-solid fa-film" aria-label="My list"></i><a href="#">My List</a>
+        </div>
       </div>
     </header>
     <main>
+      <section class="timer-block" id="timer-block">
+        <div class="timer-bg">
+          <h3 class="timer-title">Set the timer</h3>
+          <div class="timer-content">
+            <i class="fa-solid fa-hourglass fa-shake"></i>
+            <div class="timer-details">
+              <p>We know just how hard it is to pick a movie to watch. <br> Set the timer below and challenge yourself to pick before time runs out.</p>
+              <span class="input-btns">
+                <input type="number" id="time-input" min="1" placeholder="3 minutes">
+                <button id="start-btn">Start</button>
+              </span>
+              <p id="countdown"></p>
+              <button id="close-timer-block" class="timer-close-icon" aria-label="Close timer block"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div id="time-up-popup" class="time-popup">
+        <div class="time-popup-content">
+          <h3>Time is up!</h3>
+          <button id="continue-btn">Continue</button>
+          <button id="random-btn">Choose Random</button>
+        </div>
+      </div>
       <section id="movie-layout"></section>
     </main>
     <footer>
-        <p>&copy; 2024 Tazflix. All rights reserved.</p>
+      <p>&copy; 2024 Tazflix. All rights reserved.</p>
+      <p>Time Spent on Tazflix: <span id="time-spent">0m 0s</span></p>
     </footer>
     <script type="module" src="movieStorage.js"></script>
     <script type="module" src="movieApp.js"></script>
     <script type="module" src="searchAndSort.js"></script>
-    <script src="https://kit.fontawesome.com/ed09df50d0.js" crossorigin="anonymous"></script>
   </body>
 </html>
