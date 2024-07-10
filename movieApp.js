@@ -226,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const timerBlock = document.getElementById('timer-block');
   const timerNavbarIcon = document.querySelector('.toggle-timer-block');
 
+  const timerAlarm = new Audio('tazflix-alarm.wav');
   let timer;
 
   startButton.addEventListener('click', () => {
@@ -243,6 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
               clearInterval(timer);
               showPopup();
               countdownElement.textContent = '';
+              timerAlarm.play();
           } else {
               timeLeft--;
               const minutes = Math.floor(timeLeft / 60);
