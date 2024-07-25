@@ -1,5 +1,57 @@
 import { moviesDatabase } from "./movieStorage.js";
 
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  setupMobileToggle();
+  setupMobileSearch();
+  setupDesktopSearch();
+});
+
+// Mobile toggle
+function setupMobileToggle() {
+  const mobileToggle = document.getElementById('mobile-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  mobileToggle.addEventListener('click', () => {
+    mobileMenu.classList.toggle('active');
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!mobileMenu.contains(event.target) && !mobileToggle.contains(event.target)) {
+      mobileMenu.classList.remove('active');
+    }
+  });
+}
+
+// Mobile search
+function setupMobileSearch() {
+  const searchInputMobile = document.getElementById('search-input-mobile');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  searchInputMobile.addEventListener('input', () => {
+    const keyword = searchInputMobile.value;
+    const filteredMovies = searchMovies(keyword);
+    showMovies(filteredMovies);
+  });
+
+  searchInputMobile.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      mobileMenu.classList.remove('active');
+    }
+  });
+}
+
+// Desktop search
+function setupDesktopSearch() {
+  const searchInput = document.getElementById('search-input');
+
+  searchInput.addEventListener('input', () => {
+    const keyword = searchInput.value;
+    const filteredMovies = searchMovies(keyword);
+    showMovies(filteredMovies);
+  });
+}
+
 // Helper function to reduce duplicate code
 function createElement(tag, classes = [], content = '') {
   const element = document.createElement(tag);
@@ -151,21 +203,26 @@ function openMovieDetailsPopup(movie) {
   const moviePoster = createElement('img', ['popup-movie-poster']);
   moviePoster.src = movie.poster_url;
   moviePoster.alt = `Poster for ${movie.title}`;
+  const movieLength = createElement('p', [], `<strong>Duration:</strong> ${movie.movie_duration} minutes`);
 
   const movieYear = createElement('p', [], `<strong>Year:</strong> ${movie.movie_year}`);
   const movieDirector = createElement('p', [], `<strong>Director:</strong> ${movie.director}`);
   const movieDescription = createElement('p', [], `<strong>Description:</strong> ${movie.description}`);
   const movieActors = createElement('p', [], `<strong>Main actors:</strong> ${movie.actors}`);
+  const movieRating = createElement('p', [], `<strong>Age rating:</strong> ${movie.age_rating}`);
+  const movieScore = createElement('p', [], `<strong>Rotten Tomatoes Score:</strong> ${movie.rotten_tomatoes_score}`);
   const moviePrice = createElement('p', [], `<strong>Price:</strong> DKK${movie.price}`);
 
+  const movieLeft = createElement('div', ['popup-left']);
+  movieLeft.append(moviePoster, movieLength)
   const movieDetails = createElement('div', ['popup-movie-details']);
-  movieDetails.append(movieYear, movieDirector, movieDescription, movieActors, moviePrice);
+  movieDetails.append(movieYear, movieDirector, movieDescription, movieActors, movieRating, movieScore, moviePrice);
 
   const headerContainer = createElement('div', ['header-container']);
   headerContainer.append(popupHeader, closeIcon);
 
   const popupContent = createElement('div', ['popup-content']);
-  popupContent.append(moviePoster, movieDetails);
+  popupContent.append(movieLeft, movieDetails);
   popupContainer.append(headerContainer, popupContent);
   popupBackground.appendChild(popupContainer);
   document.body.appendChild(popupBackground);
@@ -192,10 +249,22 @@ function createMovieCard(movie) {
 // Populate movie cards
 function showMovies(movieList) {
   const movieGrid = document.getElementById('movie-layout');
+  movieGrid.innerHTML = ''; // Clear existing movie layout
   movieList.forEach(movie => {
     const movieCard = createMovieCard(movie);
     movieGrid.appendChild(movieCard);
   });
+}
+
+// Search movies function
+function searchMovies(keyword) {
+  console.log(`Filtering movies with keyword: ${keyword}`); // Log the filtering process
+  return moviesDatabase.filter(movie =>
+    movie.title.toLowerCase().includes(keyword.toLowerCase()) ||
+    movie.description.toLowerCase().includes(keyword.toLowerCase()) ||
+    movie.director.toLowerCase().includes(keyword.toLowerCase()) ||
+    movie.actors.some(actor => actor.toLowerCase().includes(keyword.toLowerCase()))
+  ); 
 }
 
 showMovies(moviesDatabase);

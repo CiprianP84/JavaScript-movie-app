@@ -9,11 +9,50 @@
   <body>
     <header>
         <nav class="navbar">
-          <div class="app-logo">
-            <img src="tazflix-logo.webp" alt="Logo for Tazflix movie app">
+          <div class="app-name">
+            <div class="mobile-toggle" id="mobile-toggle">
+              <i class="fa-solid fa-bars"></i>
+            </div>
+            <div class="app-logo">
+              <img src="tazflix-logo.webp" alt="Logo for Tazflix movie app">
+            </div>
+            <h1>Tazflix</h1>
           </div>
-          <h1>Tazflix</h1>
+          <div class="nav-links">
+            <div class="search-bar" id="search-bar">
+              <input type="text" id="search-input" placeholder="Search for movies...">
+              <i class="fas fa-search"></i>
+            </div>
+            <div class="navbar-icon">
+              <p>Sort</p>
+              <i class="fa-solid fa-arrow-up-wide-short"></i>
+            </div>
+            <div class="navbar-icon">
+              <p>My list</p>
+              <i class="fa-regular fa-square-check"></i>
+            </div>
+            <div class="navbar-icon">
+              <p>Log in</p>
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
         </nav>
+        <div class="mobile-menu" id="mobile-menu">
+          <img src="tazflix-logo.webp" alt="Logo for Tazflix movie app">
+          <div class="search-bar-mobile" id="search-bar-mobile">
+            <input type="text" id="search-input-mobile" placeholder="Search for movies...">
+            <i class="fas fa-search"></i>
+          </div>
+          <div class="mobile-view">
+            <i class="fa-solid fa-arrow-up-wide-short"></i><a href='#'>Select a category</a>
+          </div>
+          <div class="mobile-view">
+            <i class="fa-regular fa-user"></i><a href="#">My profile</a>
+          </div>
+          <div class="mobile-view">
+            <i class="fa-solid fa-film"></i><a href="#">My List</a>
+          </div>
+      </div>
     </header>
     <main>
       <section id="movie-layout"></section>
@@ -22,7 +61,8 @@
         <p>&copy; 2024 Tazflix. All rights reserved.</p>
     </footer>
     <script type="module" src="movieStorage.js"></script>
-    <script type="module" src="movieDetails.js"></script>
+    <script type="module" src="movieApp.js"></script>
+    <script type="module" src="searchAndSort.js"></script>
     <script src="https://kit.fontawesome.com/ed09df50d0.js" crossorigin="anonymous"></script>
   </body>
 </html>
