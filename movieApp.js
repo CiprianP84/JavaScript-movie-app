@@ -1,13 +1,56 @@
 import { moviesDatabase } from "./movieStorage.js";
 
+// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
-  const mobileToggle = document.querySelector('.mobile-toggle');
+  setupMobileToggle();
+  setupMobileSearch();
+  setupDesktopSearch();
+});
+
+// Mobile toggle
+function setupMobileToggle() {
+  const mobileToggle = document.getElementById('mobile-toggle');
   const mobileMenu = document.getElementById('mobile-menu');
 
   mobileToggle.addEventListener('click', () => {
-      mobileMenu.classList.toggle('active');
+    mobileMenu.classList.toggle('active');
   });
-});
+
+  document.addEventListener('click', (event) => {
+    if (!mobileMenu.contains(event.target) && !mobileToggle.contains(event.target)) {
+      mobileMenu.classList.remove('active');
+    }
+  });
+}
+
+// Mobile search
+function setupMobileSearch() {
+  const searchInputMobile = document.getElementById('search-input-mobile');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  searchInputMobile.addEventListener('input', () => {
+    const keyword = searchInputMobile.value;
+    const filteredMovies = searchMovies(keyword);
+    showMovies(filteredMovies);
+  });
+
+  searchInputMobile.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      mobileMenu.classList.remove('active');
+    }
+  });
+}
+
+// Desktop search
+function setupDesktopSearch() {
+  const searchInput = document.getElementById('search-input');
+
+  searchInput.addEventListener('input', () => {
+    const keyword = searchInput.value;
+    const filteredMovies = searchMovies(keyword);
+    showMovies(filteredMovies);
+  });
+}
 
 // Helper function to reduce duplicate code
 function createElement(tag, classes = [], content = '') {
@@ -206,10 +249,22 @@ function createMovieCard(movie) {
 // Populate movie cards
 function showMovies(movieList) {
   const movieGrid = document.getElementById('movie-layout');
+  movieGrid.innerHTML = ''; // Clear existing movie layout
   movieList.forEach(movie => {
     const movieCard = createMovieCard(movie);
     movieGrid.appendChild(movieCard);
   });
+}
+
+// Search movies function
+function searchMovies(keyword) {
+  console.log(`Filtering movies with keyword: ${keyword}`); // Log the filtering process
+  return moviesDatabase.filter(movie =>
+    movie.title.toLowerCase().includes(keyword.toLowerCase()) ||
+    movie.description.toLowerCase().includes(keyword.toLowerCase()) ||
+    movie.director.toLowerCase().includes(keyword.toLowerCase()) ||
+    movie.actors.some(actor => actor.toLowerCase().includes(keyword.toLowerCase()))
+  ); 
 }
 
 showMovies(moviesDatabase);

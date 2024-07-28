@@ -1,15 +1,5 @@
 import { moviesDatabase } from "./movieStorage.js";
 
-// Function to search for a keyword
-function searchMovies(keyword) {
-  return moviesDatabase.filter(movie =>
-    movie.title.toLowerCase().includes(keyword.toLowerCase()) ||
-    movie.description.toLowerCase().includes(keyword.toLowerCase()) ||
-    movie.director.toLowerCase().includes(keyword.toLowerCase()) ||
-    movie.actors.some(actor => actor.toLowerCase().includes(keyword.toLowerCase()))
-  ); 
-}
-
 // Function to sort the movie array by one or a few selected properties
 function sortMovies(properties) {
   return [...moviesDatabase].sort((a, b) => {
@@ -30,8 +20,8 @@ function filterMoviesByAgeRating(ageRating) {
 
 // Function to show movies over 120min
 const moviesOver2Hours = moviesDatabase
-.filter(movie => movie.movie_duration > 120)
-.map(movie => movie.title);
+  .filter(movie => movie.movie_duration > 120)
+  .map(movie => movie.title);
 
 // Function to sort by the highest Rotten Tomatoes Score
 const sortedByScore = [...moviesDatabase]
@@ -44,11 +34,6 @@ const sortedByScore = [...moviesDatabase]
   score: movie.rotten_tomatoes_score,
   title: movie.title
 }));
-
-
-// Testing the searching and sorting function:
-const searchResults = searchMovies('dark');
-console.log('Search Results:', searchResults);
 
 const sortedMovies = sortMovies(['movie_year', 'title']);
 console.log('Sorted Movies:', sortedMovies);
