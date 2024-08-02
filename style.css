@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik+Scribble&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+
 /* Variables */
 :root {
   --main-font: "Rubik", sans-serif;
@@ -23,7 +24,11 @@
 body {
   font-family: var(--main-font);
   line-height: 1.6;
-  background-color: var(--bg-color);
+  background-color: var(--black-bg);
+}
+main {
+  min-height: 100vh;
+  background-color: var(--black-bg);
 }
 
 /* Navigation */
@@ -46,6 +51,8 @@ body {
 }
 .mobile-toggle {
   display: block;
+  color: var(--grey-color);
+  background-color: var(--red-bg);
 }
 .mobile-menu {
   display: none;
@@ -53,7 +60,7 @@ body {
   background-color: var(--black-bg);
   position: absolute;
   top: 60px;
-  right: left;
+  right: 0;
   width: 100%;
   z-index: 1000;
   color: white;
@@ -89,7 +96,6 @@ body {
   outline: none;
   flex-grow: 1;
 }
-
 .mobile-view {
   display: flex;
   align-items: center;
@@ -101,11 +107,120 @@ body {
 .nav-links {
   display: none;
 }
-/* Layout */
-main {
-  min-height: 100vh;;
-  background-color: var(--black-bg);
+.timer-navbar-mobile {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  cursor: pointer;
 }
+
+/* Timer block */
+.timer-block {
+  display: flex;
+  justify-content: center;
+  color: var(--grey-color);
+  padding: 40px 20px 0;
+}
+.timer-block.hidden {
+  display: none;
+}
+.timer-bg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: var(--red-bg);
+  padding: 20px;
+  border-radius: 10px;
+}
+.fa-hourglass {
+  font-size: 60px;
+}
+.timer-details,
+.timer-title {
+  text-align: center;
+}
+.timer-details p {
+  font-size: 12px;
+}
+.timer-content {
+  display: flex;
+  gap: 20px;
+}
+.input-btns {
+  display: flex;
+  justify-content: space-evenly;
+  margin: 15px auto 0;
+}
+input#time-input {
+  border-radius: 8px;
+  padding: 0 10px;
+}
+#start-btn {
+  background: linear-gradient(45deg, var(--red-bg), var(--hover-color));
+  color: var(--text-color);
+  padding: 10px;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-family: var(--main-font);
+}
+#start-btn:hover {
+  background: linear-gradient(45deg, var(--hover-color), var(--red-bg));
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+#start-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+.timer-close-icon {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  color: var(--grey-color);
+  background-color: var(--red-bg);
+  font-size: 24px;
+  cursor: pointer;
+}
+#countdown {
+  margin: 10px auto 0;
+}
+/* Time-up popup */
+.time-popup {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+}
+.time-popup-content {
+  background-color: var(--grey-color);
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 330px;
+  text-align: center;
+}
+.time-popup-content h3 {
+  margin-bottom: 20px;
+}
+.time-popup-content button {
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: var(--red-bg);
+  color: var(--grey-color);
+}
+
+/* Movie cards */
 #movie-layout {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -115,8 +230,6 @@ main {
   max-width: 1200px;
   width: 100%;
 }
-
-/* Movie cards */
 .movie-card {
   display: flex;
   flex-direction: column;
@@ -157,7 +270,9 @@ main {
   flex-direction: column;
   justify-content: space-between;
 }
-.movie-details, .movie-description, .movie-director {
+.movie-details,
+.movie-description,
+.movie-director {
   font-size: 0.9em;
   color: var(--movie-description-color);
   margin: 5px 0;
@@ -316,13 +431,18 @@ main {
 footer {
   background-color: var(--red-bg);
   color: var(--text-color);
-  text-align: left;
-  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
   position: fixed;
   width: 100%;
+  height: 50px;
   bottom: 0;
+  font-size: 10px;
 }
 
+/* Media Queries */
 @media screen and (min-width: 700px) {
   .mobile-toggle {
     display: none;
@@ -343,6 +463,9 @@ footer {
     width: 100%;
     height: 100%;
     box-shadow: 1px 2px 1px #a8a7a7;
+  }
+  .timer-navbar-mobile {
+    display: none;
   }
   .nav-links {
     display: flex;
@@ -374,6 +497,16 @@ footer {
   .user-icon i {
     font-size: 25px;
   }
+  .timer-block {
+    padding: 40px 0 0;
+  }
+  .timer-details p {
+    font-size: 16px;
+  }
+  #start-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+  }
   #movie-layout {
     justify-items: center;
   }
@@ -383,4 +516,12 @@ footer {
   .popup-content {
     flex-direction: row;
   }
+  footer {
+    font-size: 16px;
+  }
+}
+
+/* Focus Styles for Accessibility */
+button:focus, input:focus, a:focus {
+  outline: 2px solid var(--hover-color);
 }

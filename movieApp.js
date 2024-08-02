@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupMobileToggle();
   setupMobileSearch();
   setupDesktopSearch();
+  setupTimer();
+  timeSpent();
 });
 
 // Mobile toggle
@@ -268,3 +270,92 @@ function searchMovies(keyword) {
 }
 
 showMovies(moviesDatabase);
+
+// Set the timer
+function setupTimer() {
+  const startButton = document.getElementById('start-btn');
+  const timeInput = document.getElementById('time-input');
+  const countdownElement = document.getElementById('countdown');
+  const timeUpPopup = document.getElementById('time-up-popup');
+  const continueButton = document.getElementById('continue-btn');
+  const randomButton = document.getElementById('random-btn');
+  const closeTimerBlock = document.getElementById('close-timer-block');
+  const timerBlock = document.getElementById('timer-block');
+  const timerNavbarIcon = document.querySelector('.toggle-timer-block');
+
+  const timerAlarm = new Audio('tazflix-alarm.wav');
+  let timer;
+
+  startButton.addEventListener('click', () => {
+      const timeValue = parseFloat(timeInput.value);
+      if (isNaN(timeValue) || timeValue <= 0) {
+          alert('Please enter a valid time in minutes.');
+          return;
+      }
+
+      clearInterval(timer);
+      let timeLeft = timeValue * 60;
+
+      timer = setInterval(() => {
+          if (timeLeft <= 0) {
+              clearInterval(timer);
+              showPopup();
+              countdownElement.textContent = '';
+              timerAlarm.play();
+          } else {
+              timeLeft--;
+              const minutes = Math.floor(timeLeft / 60);
+              const seconds = timeLeft % 60;
+              countdownElement.textContent = `${minutes}m ${seconds}s remaining`;
+          }
+      }, 1000);
+  });
+
+  continueButton.addEventListener('click', () => {
+      hidePopup();
+  });
+
+  randomButton.addEventListener('click', () => {
+      hidePopup();
+      chooseRandomMovie();
+  });
+
+  closeTimerBlock.addEventListener('click', () => {
+      timerBlock.classList.add('hidden');
+  });
+
+  timerNavbarIcon.addEventListener('click', () => {
+    timerBlock.classList.toggle('hidden');
+  });
+
+  function showPopup() {
+      timeUpPopup.style.display = 'block';
+  }
+
+  function hidePopup() {
+      timeUpPopup.style.display = 'none';
+  }
+
+  function chooseRandomMovie() {
+      const randomIndex = Math.floor(Math.random() * moviesDatabase.length);
+      const randomMovie = moviesDatabase[randomIndex];
+      openMovieDetailsPopup(randomMovie);
+  }
+};
+
+// Time Spent 
+function timeSpent() {
+  let startTime = Date.now();
+  const timeSpentElement = document.getElementById('time-spent');
+
+  function updateTimeSpent() {
+      let currentTime = Date.now();
+      let timeSpent = currentTime - startTime;
+      let seconds = Math.floor((timeSpent / 1000) % 60);
+      let minutes = Math.floor((timeSpent / (1000 * 60)) % 60);
+      let hours = Math.floor((timeSpent / (1000 * 60 * 60)) % 24);
+
+      timeSpentElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
+  }
+  setInterval(updateTimeSpent, 1000);
+};
