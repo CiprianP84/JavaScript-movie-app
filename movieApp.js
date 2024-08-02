@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setupMobileToggle();
   setupMobileSearch();
   setupDesktopSearch();
+  setupTimer();
+  timeSpent();
 });
 
 // Mobile toggle
@@ -270,7 +272,7 @@ function searchMovies(keyword) {
 showMovies(moviesDatabase);
 
 // Set the timer
-document.addEventListener('DOMContentLoaded', () => {
+function setupTimer() {
   const startButton = document.getElementById('start-btn');
   const timeInput = document.getElementById('time-input');
   const countdownElement = document.getElementById('countdown');
@@ -285,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let timer;
 
   startButton.addEventListener('click', () => {
-      const timeValue = parseInt(timeInput.value);
+      const timeValue = parseFloat(timeInput.value);
       if (isNaN(timeValue) || timeValue <= 0) {
           alert('Please enter a valid time in minutes.');
           return;
@@ -323,9 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   timerNavbarIcon.addEventListener('click', () => {
-      if (timerBlock.classList.contains('hidden')) {
-          timerBlock.classList.remove('hidden');
-      }
+    timerBlock.classList.toggle('hidden');
   });
 
   function showPopup() {
@@ -341,10 +341,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const randomMovie = moviesDatabase[randomIndex];
       openMovieDetailsPopup(randomMovie);
   }
-});
+};
 
 // Time Spent 
-document.addEventListener('DOMContentLoaded', () => {
+function timeSpent() {
   let startTime = Date.now();
   const timeSpentElement = document.getElementById('time-spent');
 
@@ -358,4 +358,4 @@ document.addEventListener('DOMContentLoaded', () => {
       timeSpentElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
   }
   setInterval(updateTimeSpent, 1000);
-});
+};
