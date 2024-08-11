@@ -1,12 +1,32 @@
-import { moviesDatabase } from "./movieStorage.js";
+// Hold the fetched movie data
+let moviesDatabase = [];
+
+// Fetch the movies data from API
+async function fetchMovies() {
+  try {
+    const response = await fetch('https://raw.githubusercontent.com/CiprianP84/CiprianP84.github.io/main/movieStorage.json');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const movies = await response.json();
+    moviesDatabase = movies;
+    showMovies(movies);
+  } catch (error) {
+    console.error('There was an error fetching the movies:', error);
+  }
+}
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
   setupMobileToggle();
-  setupMobileSearch();
-  setupDesktopSearch();
+  setupSearch();
   setupTimer();
   timeSpent();
+  fetchMovies();
+  setupSearchBarToggle();
+  setupSorting();
+  setupDropdownToggle();
+  setupCategoryPopup();
 });
 
 // Mobile toggle
@@ -25,26 +45,26 @@ function setupMobileToggle() {
   });
 }
 
-// Mobile search
-function setupMobileSearch() {
-  const searchInputMobile = document.getElementById('search-input-mobile');
-  const mobileMenu = document.getElementById('mobile-menu');
+// Search
+function setupSearchBarToggle() {
+  const searchIcon = document.getElementById('search-icon');
+  const searchBar = document.getElementById('search-bar');
 
-  searchInputMobile.addEventListener('input', () => {
-    const keyword = searchInputMobile.value;
-    const filteredMovies = searchMovies(keyword);
-    showMovies(filteredMovies);
+  searchIcon.addEventListener('click', function() {
+    searchBar.classList.toggle('expanded');
+    if (searchBar.classList.contains('expanded')) {
+      searchBar.querySelector('input').focus();
+    }
   });
 
-  searchInputMobile.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-      mobileMenu.classList.remove('active');
+  document.addEventListener('click', function(event) {
+    if (!searchBar.contains(event.target) && !searchIcon.contains(event.target)) {
+      searchBar.classList.remove('expanded');
     }
   });
 }
 
-// Desktop search
-function setupDesktopSearch() {
+function setupSearch() {
   const searchInput = document.getElementById('search-input');
 
   searchInput.addEventListener('input', () => {
@@ -54,12 +74,160 @@ function setupDesktopSearch() {
   });
 }
 
+function setupDropdownToggle() {
+  const showDropdown = document.getElementById('show-dropdown');
+  const sortingDropdown = document.getElementById('sorting-dropdown');
+
+  showDropdown.addEventListener('click', (event) => {
+    event.stopPropagation(); 
+    sortingDropdown.classList.toggle('show');
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!sortingDropdown.contains(event.target) && !showDropdown.contains(event.target)) {
+      sortingDropdown.classList.remove('show');
+    }
+  });
+}
+
+function setupSorting() {
+  const sortingCriteria = [
+    { id: 'sort-asc', criteria: 'asc' },
+    { id: 'sort-desc', criteria: 'desc' },
+    { id: 'sort-price', criteria: 'price' },
+    { id: 'sort-newest', criteria: 'newest' },
+    { id: 'sort-oldest', criteria: 'oldest' },
+    { id: 'sort-score', criteria: 'score' },
+  ];
+
+  sortingCriteria.forEach(({ id, criteria }) => {
+    document.getElementById(id).addEventListener('click', (event) => {
+      event.preventDefault();
+      sortMovies(criteria);
+    });
+  });
+}
+
+function sortMovies(criteria) {
+  const sortedMovies = [...moviesDatabase].sort((a, b) => {
+    switch (criteria) {
+      case 'asc':
+        return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+      case 'desc':
+        return b.title.toLowerCase().localeCompare(a.title.toLowerCase());
+      case 'price':
+        return a.price - b.price;
+      case 'newest':
+        return new Date(b.movie_year) - new Date(a.movie_year);
+      case 'oldest':
+        return new Date(a.movie_year) - new Date(b.movie_year);
+      case 'score':
+        return parseFloat(b.rotten_tomatoes_score) - parseFloat(a.rotten_tomatoes_score);
+      default:
+        return 0;
+    }
+  });
+  showMovies(sortedMovies);
+}
+
+function setupCategoryPopup() {
+  const showCategories = document.getElementById('show-categories');
+  const categoryPopupBackground = createPopupBackground('category-popup-background');
+  const categoryPopupContainer = createPopupContainer('category-popup-container');
+  
+  const categoryPopupHeader = createElement('h2', ['category-popup-header'], 'Select Categories');
+  const closeIcon = createElement('i', ['fas', 'fa-times', 'category-close-icon']);
+  closeIcon.addEventListener('click', () => {
+    categoryPopupBackground.style.display = 'none';
+  });
+
+  const categoryPopupContent = createElement('div', ['category-popup-content']);
+  const categories = [
+    { id: 'quick-watch', label: 'Quick Watch (below 90 min)' },
+    { id: 'long-evening', label: 'Long Evening (above 120 min)' },
+    { id: 'age-pg', label: 'PG-rating' },
+    { id: 'age-pg13', label: 'PG-13-rating' },
+    { id: 'age-r', label: 'R-rating' },
+    { id: 'age-g', label: 'G-rating' },
+  ];
+
+  categories.forEach(({ id, label }) => {
+    const labelElement = createElement('label', []);
+    const checkbox = createElement('input', []);
+    checkbox.type = 'checkbox';
+    checkbox.id = id;
+    labelElement.append(checkbox, label);
+    categoryPopupContent.appendChild(labelElement);
+  });
+
+  const categoryPopupButtons = createElement('div', ['category-popup-buttons']);
+  const applyButton = createButton('Apply', filterMoviesByCategories);
+  const resetButton = createButton('Reset', resetCategories);
+
+  categoryPopupButtons.append(applyButton, resetButton);
+  categoryPopupContainer.append(categoryPopupHeader, closeIcon, categoryPopupContent, categoryPopupButtons);
+  categoryPopupBackground.appendChild(categoryPopupContainer);
+  document.body.appendChild(categoryPopupBackground);
+
+  showCategories.addEventListener('click', () => {
+    categoryPopupBackground.style.display = 'block';
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!categoryPopupContainer.contains(event.target) && !showCategories.contains(event.target)) {
+      categoryPopupBackground.style.display = 'none';
+    }
+  });
+}
+
+function filterMoviesByCategories() {
+  const categories = [
+    { id: 'quick-watch', condition: movie => movie.movie_duration < 90 },
+    { id: 'long-evening', condition: movie => movie.movie_duration > 120 },
+    { id: 'age-pg', condition: movie => movie.age_rating === 'PG' },
+    { id: 'age-pg13', condition: movie => movie.age_rating === 'PG-13' },
+    { id: 'age-r', condition: movie => movie.age_rating === 'R' },
+    { id: 'age-g', condition: movie => movie.age_rating === 'G' },
+  ];
+
+  const filteredMovies = moviesDatabase.filter(movie => 
+    categories.some(({ id, condition }) => document.getElementById(id).checked && condition(movie))
+  );
+
+  showMovies(filteredMovies);
+}
+
+function resetCategories() {
+  document.querySelectorAll('.category-popup-content input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+  showMovies(moviesDatabase);
+}
+
 // Helper function to reduce duplicate code
 function createElement(tag, classes = [], content = '') {
   const element = document.createElement(tag);
   element.classList.add(...classes);
   if (content) element.innerHTML = content;
   return element;
+}
+
+function createPopupBackground(id) {
+  const popupBackground = document.createElement('div');
+  popupBackground.classList.add('category-popup-background');
+  popupBackground.id = id;
+  return popupBackground;
+}
+
+function createPopupContainer(id) {
+  const popupContainer = document.createElement('div');
+  popupContainer.classList.add('category-popup-container');
+  popupContainer.id = id;
+  return popupContainer;
+}
+
+function createButton(text, onClick) {
+  const button = createElement('button', [], text);
+  button.addEventListener('click', onClick);
+  return button;
 }
 
 // Create movie info
@@ -94,6 +262,7 @@ function createStarRating(movie) {
     const ratingButton = createElement('button', ['rating']);
     const starIcon = createElement('i', ['fa-regular', 'fa-star']);
     ratingButton.appendChild(starIcon);
+    ratingButton.setAttribute('aria-label', `Rate ${i + 1} stars`);
 
     ratingButton.addEventListener('click', () => {
       movie.rating = i + 1;
@@ -114,6 +283,7 @@ function updateStars(ratingContainer, rating) {
   stars.forEach((star, index) => {
     star.classList.toggle('fa-solid', index < rating);
     star.classList.toggle('fa-regular', index >= rating);
+    star.parentElement.setAttribute('aria-pressed', index < rating);
   });
 }
 
@@ -128,6 +298,7 @@ function createCommentComponent(movie) {
 
   const moviePrice = createElement('p', ['movie-price'], `DKK${movie.price}`);
   const commentsButton = createElement('button', ['comments-button']);
+  commentsButton.setAttribute('aria-label', `View comments for ${movie.title}`);
   sendMessage.appendChild(commentsButton);
 
   movieExtraInfo.append(moviePrice, createStarRating(movie), sendMessage);
@@ -216,7 +387,7 @@ function openMovieDetailsPopup(movie) {
   const moviePrice = createElement('p', [], `<strong>Price:</strong> DKK${movie.price}`);
 
   const movieLeft = createElement('div', ['popup-left']);
-  movieLeft.append(moviePoster, movieLength)
+  movieLeft.append(moviePoster, movieLength);
   const movieDetails = createElement('div', ['popup-movie-details']);
   movieDetails.append(movieYear, movieDirector, movieDescription, movieActors, movieRating, movieScore, moviePrice);
 
@@ -260,16 +431,13 @@ function showMovies(movieList) {
 
 // Search movies function
 function searchMovies(keyword) {
-  console.log(`Filtering movies with keyword: ${keyword}`); // Log the filtering process
   return moviesDatabase.filter(movie =>
     movie.title.toLowerCase().includes(keyword.toLowerCase()) ||
     movie.description.toLowerCase().includes(keyword.toLowerCase()) ||
     movie.director.toLowerCase().includes(keyword.toLowerCase()) ||
     movie.actors.some(actor => actor.toLowerCase().includes(keyword.toLowerCase()))
-  ); 
+  );
 }
-
-showMovies(moviesDatabase);
 
 // Set the timer
 function setupTimer() {
@@ -341,7 +509,7 @@ function setupTimer() {
       const randomMovie = moviesDatabase[randomIndex];
       openMovieDetailsPopup(randomMovie);
   }
-};
+}
 
 // Time Spent 
 function timeSpent() {
@@ -358,4 +526,4 @@ function timeSpent() {
       timeSpentElement.textContent = `${hours}h ${minutes}m ${seconds}s`;
   }
   setInterval(updateTimeSpent, 1000);
-};
+}
