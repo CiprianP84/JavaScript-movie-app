@@ -6,7 +6,7 @@
         <meta name="description" content="Tazflix is your ultimate movie app for discovering and watching your favorite films. Enjoy a seamless experience with features like movie search, sorting, and a personalized watchlist.">
         <title>Tazflix - Your Best Movie App</title>
         <link rel="stylesheet" href="style.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400&family=Rubik+Scribble:wght@400&display=swap">
+        <link rel="preconnect" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400&family=Rubik+Scribble:wght@400&display=swap">
         <script async src="https://kit.fontawesome.com/ed09df50d0.js" crossorigin="anonymous"></script>
     </head>
     <body>
@@ -17,7 +17,7 @@
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div class="app-logo">
-                        <img src="tazflix-logo.webp" alt="Tazflix logo">
+                        <img src="tazflix-logo.webp" alt="Tazflix logo" loading="lazy">
                     </div>
                     <h1>Tazflix</h1>
                 </div>
@@ -50,10 +50,10 @@
                     <p>Category</p>
                     <i class="fa-regular fa-square-check" aria-hidden="true"></i>
                   </div>                  
-                  <div class="navbar-icon favorit-icon" aria-label="Your favourites" id="">
-                    <p>Favourites</p>
-                    <i class="fa-regular fa-heart"></i>
-                  </div>                  
+                    <div class="navbar-icon favorit-icon" aria-label="Your favourites" id="favorites-icon">
+                        <p>Favourites</p>
+                        <i class="fa-regular fa-heart"></i>
+                    </div>                                
                   <div class="navbar-icon login-icon" aria-label="Log in">
                       <p>Log in</p>
                       <i class="fas fa-user" aria-hidden="true"></i>
@@ -61,7 +61,7 @@
                 </div>
             </nav>
             <div class="mobile-menu" id="mobile-menu">
-                <img src="tazflix-logo.webp" alt="Tazflix logo">
+                <img src="tazflix-logo.webp" alt="Tazflix logo" loading="lazy">
                 <div class="mobile-view">
                     <i class="fa-solid fa-list" aria-hidden="true"></i><a href="#" aria-label="Select a category">Select a category</a>
                 </div>

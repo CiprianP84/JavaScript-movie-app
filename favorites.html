@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your favorite movies on Tazflix.">
+    <title>Your Favorites - Tazflix</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400&family=Rubik+Scribble:wght@400&display=swap">
+    <script async src="https://kit.fontawesome.com/ed09df50d0.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="app-name">
+                <div class="app-logo">
+                    <img src="tazflix-logo.webp" alt="Tazflix logo" loading="lazy">
+                </div>
+                <h1>Tazflix</h1>
+            </div>
+            <div class="nav-links">
+                <a class="favorites-nav" href="/"><i class="fa-solid fa-house"></i></a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div id="no-favorites-yet">
+            <h2>Your Favorites</h2>
+            <p>You haven't added any favorite movies yet.</p>
+            <p>Go back to <a href="/">home page</a> and add some.</p>
+        </div>  
+    </main>
+    <footer>
+        <p>&copy; 2024 Tazflix. All rights reserved.</p>
+    </footer>
+    <script type="module" src="movieApp.js" defer></script>
+</body>
+</html>
