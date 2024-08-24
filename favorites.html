@@ -6,7 +6,7 @@
     <meta name="description" content="Your favorite movies on Tazflix.">
     <title>Your Favorites - Tazflix</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400&family=Rubik+Scribble:wght@400&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400&family=Rubik+Scribble:wght@400&display=swap">
     <script async src="https://kit.fontawesome.com/ed09df50d0.js" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -24,15 +24,18 @@
         </nav>
     </header>
     <main>
-        <div id="no-favorites-yet">
-            <h2>Your Favorites</h2>
-            <p>You haven't added any favorite movies yet.</p>
-            <p>Go back to <a href="/">home page</a> and add some.</p>
-        </div>  
+        <section class="favorites-section">
+            <h2 class="favorites-headline">Your Favorite Movies</h2>
+            <div class="favorites-container" id="favorites-container"></div>
+            <div id="no-favorites-yet">
+                <p>You haven't added any favorite movies yet.</p>
+                <p>Go back to <a href="/">home page</a> and add some.</p>
+            </div>  
+        </section>
     </main>
     <footer>
         <p>&copy; 2024 Tazflix. All rights reserved.</p>
     </footer>
-    <script type="module" src="movieApp.js" defer></script>
+    <script type="module" src="favorites.js" defer></script>
 </body>
 </html>

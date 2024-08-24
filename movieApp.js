@@ -252,6 +252,7 @@ function toggleFavorite(movie, icon) {
     icon.classList.remove('fa-regular');
   }
   localStorage.setItem('favorites', JSON.stringify(favorites));
+  console.log("your favorites movies => ", favorites)
 }
 // Create movie info
 function createMovieInfo(movie) {
@@ -343,30 +344,42 @@ function createCommentComponent(movie) {
   return movieExtraInfo;
 }
 
-
 // Create comment element
-function createCommentElement(comment) {
-  return createElement('p', ['comment'], comment);
+function createCommentElement(comment, author, time) {
+  const commentContainer = createElement('div', ['comment-container']);
+  
+  const commentText = createElement('p', ['comment'], comment);
+  const commentAuthor = createElement('p', ['comment-author'], `Posted by ${author} on ${time}`);
+  
+  commentContainer.append(commentText, commentAuthor);
+  
+  return commentContainer;
 }
 
+
 // Create submit button
-function createSubmitButton(movie, commentInput, commentsSection) {
+function createSubmitButton(movie, commentInput, authorInput, commentsSection) {
   const submitButton = createElement('button', ['submit-button'], 'Submit');
 
   submitButton.addEventListener('click', () => {
     const newComment = commentInput.value.trim();
+    let authorName = authorInput.value.trim() || 'Anonymous';
+    
     if (newComment) {
+      const currentTime = new Date().toLocaleString();
       movie.comments = movie.comments || [];
-      movie.comments.push(newComment);
+      movie.comments.push({ comment: newComment, author: authorName, time: currentTime });
 
-      const newCommentElement = createCommentElement(newComment);
+      const newCommentElement = createCommentElement(newComment, authorName, currentTime);
       commentsSection.appendChild(newCommentElement);
       commentInput.value = '';
+      authorInput.value = '';
     }
   });
 
   return submitButton;
 }
+
 
 // Open comments popup
 function openCommentsPopup(movie) {
@@ -378,19 +391,27 @@ function openCommentsPopup(movie) {
   miniPoster.src = movie.poster_url;
   miniPoster.alt = `Poster for ${movie.title}`;
 
+  const commentsWrapper = createElement('div', ['comments-wrapper']);
   const commentsSection = createElement('div', ['comments-section']);
-  (movie.comments || []).forEach(comment => {
-    commentsSection.appendChild(createCommentElement(comment));
+  (movie.comments || []).forEach(({ comment, author, time }) => {
+    commentsSection.appendChild(createCommentElement(comment, author, time));
   });
+
+  const authorInput = createElement('input', ['author-input']);
+  authorInput.type = 'text';
+  authorInput.placeholder = 'Your name';
 
   const commentInput = createElement('textarea', ['comment-input']);
   commentInput.placeholder = "Write your comment here...";
-  const submitButton = createSubmitButton(movie, commentInput, commentsSection);
+  
+  const submitButton = createSubmitButton(movie, commentInput, authorInput, commentsSection);
 
   const headerContainer = createElement('div', ['header-container']);
   headerContainer.append(miniPoster, popupHeader, closeIcon);
 
-  popupContainer.append(headerContainer, commentsSection, commentInput, submitButton);
+  commentsWrapper.appendChild(commentsSection);
+
+  popupContainer.append(headerContainer, commentsWrapper, authorInput, commentInput, submitButton);
   popupBackground.appendChild(popupContainer);
   document.body.appendChild(popupBackground);
 
@@ -410,6 +431,8 @@ function openMovieDetailsPopup(movie) {
   moviePoster.src = movie.poster_url;
   moviePoster.alt = `Poster for ${movie.title}`;
   const movieLength = createElement('p', [], `<strong>Duration:</strong> ${movie.movie_duration} minutes`);
+  const movieTrailer = createElement('p', [], `<a href="${movie.trailer}"target="_blank"><i class="fa-brands fa-youtube"></i> Watch the trailer</a>`);
+  const movieOnline = createElement('p', [], `<a href="${movie.watch_online}"target="_blank"><i class="fa-solid fa-film"></i> Watch online</a>`);
 
   const movieYear = createElement('p', [], `<strong>Year:</strong> ${movie.movie_year}`);
   const movieDirector = createElement('p', [], `<strong>Director:</strong> ${movie.director}`);
@@ -420,7 +443,7 @@ function openMovieDetailsPopup(movie) {
   const moviePrice = createElement('p', [], `<strong>Price:</strong> DKK${movie.price}`);
 
   const movieLeft = createElement('div', ['popup-left']);
-  movieLeft.append(moviePoster, movieLength);
+  movieLeft.append(moviePoster, movieLength, movieTrailer, movieOnline);
   const movieDetails = createElement('div', ['popup-movie-details']);
   movieDetails.append(movieYear, movieDirector, movieDescription, movieActors, movieRating, movieScore, moviePrice);
 
@@ -563,27 +586,8 @@ function timeSpent() {
   setInterval(updateTimeSpent, 1000);
 }
 
-// Add to favorites
-function addToFavorites() {
-  const addToFavoritesButton = document.getElementById('favorites-icon');
-
-  addToFavoritesButton.addEventListener('click', () => {
-      window.location.href = '/favorites';
-  });
-}
-function loadFavorites() {
-  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-  if (favorites.length > 0) {
-    showMovies(favorites);
-  } else {
-    return
-  }
-}
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
-  if (window.location.pathname === '/favorites') {
-    loadFavorites();
-  } else {
     setupMobileToggle();
     setupSearch();
     setupTimer();
@@ -594,6 +598,4 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDropdownToggle();
     setupCategoryPopup();
     setupInfiniteScroll();
-    addToFavorites();
-  }
 });
