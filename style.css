@@ -342,6 +342,7 @@ input#time-input {
   width: 100%;
 }
 .movie-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -354,6 +355,26 @@ input#time-input {
 .movie-card:hover {
   transform: scale(1.05);
 }
+.favorite-movie-icon {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 20px;
+  color: var(--red-bg);
+}
+.favorite-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+}
+
+.remove-favorite {
+  background-color: red;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
 .movie-title {
   font-size: 1.2em;
   margin: 10px;
@@ -363,8 +384,13 @@ input#time-input {
   display: flex;
   justify-content: center;
 }
-.movie-card-layout {
+.movie-info {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.movie-card-layout {
+  display: block;
   padding: 10px;
   cursor: pointer;
 }
@@ -394,13 +420,7 @@ input#time-input {
   margin: 10px;
 }
 .movie-description {
-  font-size: 0.85em;
-  max-height: 9em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
+  display: none;
 }
 .movie-extra-info {
   display: flex;
@@ -539,6 +559,26 @@ input#time-input {
   align-items: center;
 }
 
+/* Styline for favorites page */
+.favorites-nav {
+  color: var(--contrast-color);
+  font-size: 22px;
+}
+#no-favorites-yet {
+  color: var(--contrast-color);
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#no-favorites-yet a {
+  color: var(--contrast-color);
+  font-size: 18px;
+}
+
 /* Footer */
 footer {
   background-color: var(--red-bg);
@@ -602,6 +642,21 @@ footer {
   }
   .movie-card {
     max-width: 350px;
+  }
+  .movie-info {
+    display: block;
+  }
+  .movie-card-layout {
+    display: flex;
+  }
+  .movie-description {
+    font-size: 0.85em;
+    max-height: 9em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
   }
   .popup-content {
     flex-direction: row;

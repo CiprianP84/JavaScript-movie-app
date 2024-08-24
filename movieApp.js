@@ -1,5 +1,8 @@
 // Hold the fetched movie data
 let moviesDatabase = [];
+// Show 10 movies on first load
+let currentIndex = 0;
+const moviesPerPage = 10;
 
 // Fetch the movies data from API
 async function fetchMovies() {
@@ -10,24 +13,29 @@ async function fetchMovies() {
     }
     const movies = await response.json();
     moviesDatabase = movies;
-    showMovies(movies);
+    showMovies(moviesDatabase.slice(0, moviesPerPage));
+    currentIndex = moviesPerPage;
   } catch (error) {
     console.error('There was an error fetching the movies:', error);
   }
 }
+// Show more movies as the user scrolls to the bottom
+function showMoreMovies() {
+  const moviesToShow = moviesDatabase.slice(currentIndex, currentIndex + moviesPerPage);
+  showMovies(moviesToShow, true);
+  currentIndex += moviesPerPage;
+}
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  setupMobileToggle();
-  setupSearch();
-  setupTimer();
-  timeSpent();
-  fetchMovies();
-  setupSearchBarToggle();
-  setupSorting();
-  setupDropdownToggle();
-  setupCategoryPopup();
-});
+// Infinite scroll
+function setupInfiniteScroll() {
+  window.addEventListener('scroll', () => {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 500) {
+      if (currentIndex < moviesDatabase.length) {
+        showMoreMovies();
+      }
+    }
+  });
+}
 
 // Mobile toggle
 function setupMobileToggle() {
@@ -45,7 +53,7 @@ function setupMobileToggle() {
   });
 }
 
-// Search
+// Search bar
 function setupSearchBarToggle() {
   const searchIcon = document.getElementById('search-icon');
   const searchBar = document.getElementById('search-bar');
@@ -73,7 +81,7 @@ function setupSearch() {
     showMovies(filteredMovies);
   });
 }
-
+// Setup dropdown toggle
 function setupDropdownToggle() {
   const showDropdown = document.getElementById('show-dropdown');
   const sortingDropdown = document.getElementById('sorting-dropdown');
@@ -89,7 +97,7 @@ function setupDropdownToggle() {
     }
   });
 }
-
+// Sorting functions
 function setupSorting() {
   const sortingCriteria = [
     { id: 'sort-asc', criteria: 'asc' },
@@ -129,7 +137,7 @@ function sortMovies(criteria) {
   });
   showMovies(sortedMovies);
 }
-
+// Category popup
 function setupCategoryPopup() {
   const showCategories = document.getElementById('show-categories');
   const categoryPopupBackground = createPopupBackground('category-popup-background');
@@ -229,9 +237,33 @@ function createButton(text, onClick) {
   button.addEventListener('click', onClick);
   return button;
 }
+// Toggle favourite function
+function toggleFavorite(movie, icon) {
+  let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  const isFavorite = favorites.some(favMovie => favMovie.id === movie.id);
 
+  if (isFavorite) {
+    favorites = favorites.filter(favMovie => favMovie.id !== movie.id);
+    icon.classList.remove('fa-solid');
+    icon.classList.add('fa-regular');
+  } else {
+    favorites.push(movie);
+    icon.classList.add('fa-solid');
+    icon.classList.remove('fa-regular');
+  }
+  localStorage.setItem('favorites', JSON.stringify(favorites));
+}
 // Create movie info
 function createMovieInfo(movie) {
+  const addToFavoriteIcon = createElement('i', ['fa-regular', 'fa-heart', 'favorite-movie-icon']);
+  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  if (favorites.some(favMovie => favMovie.id === movie.id)) {
+    addToFavoriteIcon.classList.add('fa-solid');
+    addToFavoriteIcon.classList.remove('fa-regular');
+  }
+  addToFavoriteIcon.addEventListener('click', () => {
+    toggleFavorite(movie, addToFavoriteIcon);
+  });
   const movieTitle = createElement('h2', ['movie-title'], movie.title);
   const moviePoster = createElement('img', ['movie-poster']);
   moviePoster.src = movie.poster_url;
@@ -249,7 +281,7 @@ function createMovieInfo(movie) {
   const movieDirector = createElement('p', ['movie-director'], `Director: ${movie.director}`);
 
   const movieInfo = createElement('div', ['movie-info']);
-  movieInfo.append(movieTitle, movieCardLayout, movieDirector);
+  movieInfo.append(addToFavoriteIcon, movieTitle, movieCardLayout, movieDirector);
 
   return movieInfo;
 }
@@ -310,6 +342,7 @@ function createCommentComponent(movie) {
 
   return movieExtraInfo;
 }
+
 
 // Create comment element
 function createCommentElement(comment) {
@@ -420,9 +453,11 @@ function createMovieCard(movie) {
 }
 
 // Populate movie cards
-function showMovies(movieList) {
+function showMovies(movieList, append = false) {
   const movieGrid = document.getElementById('movie-layout');
-  movieGrid.innerHTML = ''; // Clear existing movie layout
+  if (!append) {
+    movieGrid.innerHTML = '';
+  }
   movieList.forEach(movie => {
     const movieCard = createMovieCard(movie);
     movieGrid.appendChild(movieCard);
@@ -527,3 +562,38 @@ function timeSpent() {
   }
   setInterval(updateTimeSpent, 1000);
 }
+
+// Add to favorites
+function addToFavorites() {
+  const addToFavoritesButton = document.getElementById('favorites-icon');
+
+  addToFavoritesButton.addEventListener('click', () => {
+      window.location.href = '/favorites';
+  });
+}
+function loadFavorites() {
+  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  if (favorites.length > 0) {
+    showMovies(favorites);
+  } else {
+    return
+  }
+}
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.location.pathname === '/favorites') {
+    loadFavorites();
+  } else {
+    setupMobileToggle();
+    setupSearch();
+    setupTimer();
+    timeSpent();
+    fetchMovies();
+    setupSearchBarToggle();
+    setupSorting();
+    setupDropdownToggle();
+    setupCategoryPopup();
+    setupInfiniteScroll();
+    addToFavorites();
+  }
+});
